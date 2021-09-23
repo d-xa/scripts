@@ -66,8 +66,7 @@ check_remote_branch_exist () {
 	else \
 		echo "${YELLOW}remote branch does not exist${NC}";
 		echo "about to create a new remote branch $BRANCHNAME" \
-		confirm \
-		&& create_remote_branch
+		confirm 
 		return 1;
 	fi 
 }
