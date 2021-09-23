@@ -79,7 +79,7 @@ create_remote_branch () {
 	&& git clone -b $BRANCHNAME $REMOTEREPO $BRANCHNAME \
 	&& find '(' -name .git ')' -prune -o -exec rm -rf {} \
 	&& git add . \
-	&& git commit -m "initialize $BRANCHNAME"
+	&& git commit -m "initialize $BRANCHNAME" \
 	&& git push
 	return 0
 }
