@@ -18,11 +18,23 @@ NC=$(tput setaf 7) #RED='\033[0;31m'
 # -------------------------------------
 
 #   check script parameters
-check_script_params () {
-    if [ -z $BRANCHNAME ]; then 
+check_param_branchname () {
+    if [ -z $BRANCHNAME  ]; then 
 		echo "${RED}please set branchname with --branch or -b${NC}" ; 
-		exit 1;
+		return 1;
 	fi
+}
+
+check_param_remoterepo () {
+    if [ -z $REMOTEREPO  ]; then 
+		echo "${RED}please set remote repo with --remote or -r${NC}" ; 
+		return 1;
+	fi
+}
+
+check_all_script_params () {
+	check_param_branchname
+	check_param__remoterepo
 }
 
 #   check if local directory exists
@@ -34,6 +46,18 @@ check_subdir_exist () {
 		echo "${YELLOW}local subdir $BRANCHNAME does not exist ${NC}" ; 
 		return 1;
 	fi
+}
+
+#   check if remote branch exists
+check_remote_branch_exist () {
+	if [ "$(git ls-remote --heads $REMOTEREPO $BRANCHNAME | wc -l)" -eq "1" ]; then 
+		echo "remote branch exist"; 
+		return 0; 
+	else \
+		echo "remote branch does not exist"; 
+		return 1;
+	fi 
+
 }
 
 # -------------------------------------
@@ -52,14 +76,22 @@ do
 		BRANCHNAME="${i#*=}"
 		shift
 		;;
+		-r=*|--remote=*)
+		REMOTEREPO="${i#*=}"
+		shift
+		;;
 
 		# OPERATION
 		help)
 		OPERATION=print_help
 		shift
 		;;
-		check)
+		check-local-subdir)
 		OPERATION=check_subdir_exist
+		shift
+		;;
+		check-remote-branch)
+		OPERATION=check_remote_branch_exist
 		shift
 		;;
 
@@ -75,4 +107,4 @@ done
 # -------------------------------------
 # Main
 # -------------------------------------
-eval check_script_params && $OPERATION
+eval check_all_script_params && $OPERATION
