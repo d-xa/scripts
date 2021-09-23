@@ -20,12 +20,16 @@ CURRENTDIR=$(pwd)
 
 # 	to confirm
 confirm() {
-	read -r -p "are you sure? [y/N]" response
-	if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-		return 0;
+	if [ -z $CONFIRM ]; then	
+		read -r -p "are you sure? [y/N]" response
+		if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+			return 0;
+		else
+			echo "ok - nothing happened"
+			return 1;
+		fi
 	else
-		echo "ok - nothing happened"
-		return 1;
+		return 0;
 	fi
 }
 
@@ -135,6 +139,10 @@ do
 		;;
 		-r=*|--remote=*)
 		REMOTEREPO="${i#*=}"
+		shift
+		;;
+		-y*|--yes*)
+		CONFIRM="y"
 		shift
 		;;
 
