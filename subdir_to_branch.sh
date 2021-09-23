@@ -12,6 +12,7 @@ GREEN=$(tput setaf 2) #GREEN='\033[0;32m'
 YELLOW=$(tput setaf 3) #YELLOW='\033[0;33m'
 NC=$(tput setaf 7) #RED='\033[0;31m'
 
+CURRENTDIR=$(pwd)
 
 # -------------------------------------
 # Functions
@@ -19,10 +20,11 @@ NC=$(tput setaf 7) #RED='\033[0;31m'
 
 # 	to confirm
 confirm() {
-	read -r -p "Are you sure? [y/N]" response
+	read -r -p "are you sure? [y/N]" response
 	if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
 		return 0;
 	else
+		echo "ok - nothing happened"
 		return 1;
 	fi
 }
@@ -43,17 +45,16 @@ check_param_remoterepo () {
 }
 
 check_all_script_params () {
-	check_param_branchname
-	check_param_remoterepo
+	check_param_branchname && check_param_remoterepo
 }
 
 #   check if local directory exists
 check_subdir_exist () {
-    if [ -d $(pwd)/$BRANCHNAME ]; then 
+    if [ -d $CURRENTDIR/$BRANCHNAME ]; then 
 		echo "${GREEN}local subdir $BRANCHNAME exists ${NC}"; 
 		return 0;
 	else \
-		echo "${YELLOW}local subdir $BRANCHNAME does not exist ${NC}" ; 
+		echo "${YELLOW}local subdir $BRANCHNAME does not exist - please create it first ${NC}" ; 
 		return 1;
 	fi
 }
@@ -65,40 +66,56 @@ check_remote_branch_exist () {
 		return 0; 
 	else \
 		echo "${YELLOW}remote branch does not exist${NC}";
-		echo "about to create a new remote branch $BRANCHNAME" \
-		confirm 
-		return 1;
+		echo "about to create a new remote branch $BRANCHNAME";
+		confirm && create_remote_branch;
 	fi 
 }
 
-#   create remote branch
 create_remote_branch () {
-	mkdir -p $(pwd)/_branches \
-	&& cd $(pwd)/_branches \
-	&& mkdir $(pwd)/_branches/$BRANCHNAME \
-	&& git clone -b $BRANCHNAME $REMOTEREPO $BRANCHNAME \
-	&& find '(' -name .git ')' -prune -o -exec rm -rf {} \
+	# create new remote branch
+	git checkout -b $BRANCHNAME
+	git push -u $REMOTEREPO $BRANCHNAME
+
+	# initialize new branch
+	initialize_remote_branch
+	return 0
+}
+
+initialize_remote_branch () {
+	# clone to _branches
+	mkdir -p $CURRENTDIR/_branches
+	cd $CURRENTDIR/_branches \
+	&& git clone -b $BRANCHNAME $REMOTEREPO $BRANCHNAME
+
+	# initialize 
+	cd $CURRENTDIR/_branches/$BRANCHNAME \
+	&& $(ls | grep -v .git | xargs rm -rf) \
 	&& git add . \
 	&& git commit -m "initialize $BRANCHNAME" \
 	&& git push
+	echo "${GREEN}remote branch $BRANCHNAME created${NC}"
 	return 0
 }
 
 check_all() {
-	check_subdir_exist
-	check_remote_branch_exist
+	check_subdir_exist && check_remote_branch_exist
 }
 
 
 #   copy and push branch
 update_remote_branch () {
-	cp $(pwd)/$BRANCHNAME/* $(pwd)/_branches/$BRANCHNAME/*
-	cd $(pwd)/_branches \
+	cp $CURRENTDIR/$BRANCHNAME/* $CURRENTDIR/_branches/$BRANCHNAME
+	cd $CURRENTDIR/_branches/$BRANCHNAME \
+	&& git add . \
 	&& git commit -m "update $BRANCHNAME" \
 	&& git push
-	return 0
+	echo "${GREEN}updated remote branch $BRANCHNAME${NC}"
+	return 0;
 }
 
+check_and_update () {
+	check_all && update_remote_branch
+}
 
 # -------------------------------------
 # To parse script arguments provided by user
@@ -136,6 +153,15 @@ do
 		;;
 		check)
 		OPERATION=check_all
+		shift
+		;;
+		update)
+		OPERATION=check_and_update
+		shift
+		;;
+		
+		test)
+		OPERATION=initialize_remote_branch
 		shift
 		;;
 
