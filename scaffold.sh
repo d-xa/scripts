@@ -5,7 +5,6 @@
 # Variables and Config
 # -------------------------------------
 PROJECTNAME="TEST"
-TYPE="python" 
 
 # Colors
 NC='\033[0;30m'
@@ -17,6 +16,7 @@ NC=$(tput setaf 7) #RED='\033[0;31m'
 # -------------------------------------
 # Help
 # -------------------------------------
+# script usage bash scaffold create -s=simple-python-venv-project -n=my-project
 print_help () {
 	printf '%s\n' "Script to create new project"
 	printf '%s\n' "Usage ${GREEN}sh $0 OPERATION ${YELLOW}[OPTIONS]${NC}"
@@ -39,20 +39,22 @@ print_help () {
 # -------------------------------------
 # Functions
 # -------------------------------------
-
-# scaffold1 
-#	python project with virtual environment
-create_python_project () {
-	mkdir $(pwd)/$PROJECTNAME
-	echo "$PROJECTNAME" >> $(pwd)/$PROJECTNAME/README.md
-	echo "pylint\npytest" >> $(pwd)/$PROJECTNAME/requirements.txt
-	echo "print('Hello Python')" >> $(pwd)/$PROJECTNAME/hello.py
-	touch $(pwd)/$PROJECTNAME/Makefile
-	python3 -m venv $(pwd)/$PROJECTNAME/.$PROJECTNAME
-
-	echo "${GREEN}Project ${PROJECTNAME} created succesfully! Activate environment with command below: ${NC}"
-	echo "${YELLOW}. $(pwd)/$PROJECTNAME/.$PROJECTNAME/bin/activate${NC}"
+# to list available scaffolds
+list_scaffolds () {
+	SCAFFOLD_LIST=$(git ls-remote --heads https://github.com/d-xa/project-scaffolds.git | awk -F'refs/heads/' '{print $2}' | grep -v main)
+	for s in $SCAFFOLD_LIST; do echo $s; done 
+	return 0
 }
+
+
+# to create scaffold
+create_scaffold () {
+	if [-z $SCAFFOLD]; then echo "please specify scaffold with --scaffold or -s"; exit 1; fi 
+	if [-z $PROJECTNAME]; then echo "please specify project name with --name or -n"; exit 1; fi 
+	mkdir $PROJECTNAME && curl -L https://github.com/d-xa/project-scaffolds/tarball/$SCAFFOLD | tar -xzv --strip-components=1 -C $PROJECTNAME
+	return 0
+}
+
 
 # -------------------------------------
 # To parse script arguments provided by user
@@ -66,6 +68,10 @@ do
 		;;
 
 		# OPTIONS
+		-s=*|--scaffold=*)
+		SCAFFOLD="${i#*=}"
+		shift
+		;;
 		-n=*|--name=*)
 		PROJECTNAME="${i#*=}"
 		shift
@@ -74,6 +80,10 @@ do
 		# OPERATION
 		help)
 		OPERATION=print_help
+		shift
+		;;
+		list)
+		OPERATION=list_scaffolds
 		shift
 		;;
 		create)
