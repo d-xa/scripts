@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-# script to upload a subdirectory to a remote branch
+# Script to manage subdirectories in remote branches
 
 # -------------------------------------
 # Variables and Config
 # -------------------------------------
-
 # Colors
 NC='\033[0;30m'
 RED=$(tput setaf 1) #RED='\033[0;31m'
@@ -15,9 +14,36 @@ NC=$(tput setaf 7) #RED='\033[0;31m'
 CURRENTDIR=$(pwd)
 
 # -------------------------------------
+# Help
+# -------------------------------------
+print_help () {
+	printf '%s\n' "Script to manage subdirectories in remote branches"
+	printf '%s\n' "Usage ${GREEN}sh $0 OPERATION ${YELLOW}[OPTIONS]${NC}"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "${GREEN}OPERATIONS${NC}"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "$0 update			to update remote branch"
+	printf '%s\n' "$0 help				to print help"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "${YELLOW}MANDATORY ARGUMENTS${NC}"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "-b|--branch			to specify branch name - must be the same as existing subdirectory name"
+	printf '%s\n' "-r|--remote			to specify remote repo. e.g -r=https://github.com/<user>/<repo>.git"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "${YELLOW}OPTIONAL${NC}"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "-y|--yes				to confirm automatically"
+	printf '%s\n' "-h|--help			to print help"
+	printf '%s\n' "$0 help				to print help"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "EXAMPLES"
+	printf '%s\n' "------------------------------"
+	printf '%s\n' "update -b=subdirectory -r=https://github.com/<user>/<repo>.git -y"
+}
+
+# -------------------------------------
 # Functions
 # -------------------------------------
-
 # 	to confirm
 confirm() {
 	if [ -z $CONFIRM ]; then	
@@ -33,7 +59,7 @@ confirm() {
 	fi
 }
 
-#   check script parameters
+#   to check script parameters
 check_param_branchname () {
     if [ -z $BRANCHNAME  ]; then 
 		echo "${RED}please set branchname with --branch or -b${NC}" ; 
@@ -52,7 +78,7 @@ check_all_script_params () {
 	check_param_branchname && check_param_remoterepo
 }
 
-#   check if local directory exists
+#   to check if local directory exists
 check_subdir_exist () {
     if [ -d $CURRENTDIR/$BRANCHNAME ]; then 
 		echo "${GREEN}local subdir $BRANCHNAME exists ${NC}"; 
@@ -63,7 +89,7 @@ check_subdir_exist () {
 	fi
 }
 
-#   check if remote branch exists
+#   to check if remote branch exists
 check_remote_branch_exist () {
 	if [ "$(git ls-remote --heads $REMOTEREPO $BRANCHNAME | wc -l)" -eq "1" ]; then 
 		echo "${GREEN}remote branch already exists${NC}"; 
@@ -75,6 +101,7 @@ check_remote_branch_exist () {
 	fi 
 }
 
+#	to create remote branch and initialize content
 create_remote_branch () {
 	# create new remote branch
 	git checkout -b $BRANCHNAME
@@ -106,7 +133,7 @@ check_all() {
 }
 
 
-#   copy and push branch
+#	to copy and push branch
 update_remote_branch () {
 	cp $CURRENTDIR/$BRANCHNAME/* $CURRENTDIR/_branches/$BRANCHNAME
 	cd $CURRENTDIR/_branches/$BRANCHNAME \
@@ -117,6 +144,7 @@ update_remote_branch () {
 	return 0;
 }
 
+#	to check and update
 check_and_update () {
 	check_all && update_remote_branch
 }
@@ -152,24 +180,19 @@ do
 		shift
 		;;
 		check-local-subdir)
-		OPERATION=check_subdir_exist
+		OPERATION="check_all_script_params && check_subdir_exist"
 		shift
 		;;
 		check-remote-branch)
-		OPERATION=check_remote_branch_exist
+		OPERATION="check_all_script_params && check_remote_branch_exist"
 		shift
 		;;
 		check)
-		OPERATION=check_all
+		OPERATION="check_all_script_params && check_all"
 		shift
 		;;
 		update)
-		OPERATION=check_and_update
-		shift
-		;;
-		
-		test)
-		OPERATION=initialize_remote_branch
+		OPERATION="check_all_script_params && check_and_update"
 		shift
 		;;
 
@@ -185,4 +208,4 @@ done
 # -------------------------------------
 # Main
 # -------------------------------------
-eval check_all_script_params && $OPERATION
+eval $OPERATION
