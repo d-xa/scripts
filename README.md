@@ -21,9 +21,24 @@ bash scaffold.sh list
 bash create -s=simple-python-venv-project -n=my-new-project
 ```
 
+> subdir_to_branch.sh
+```
+# push or update a subdirectory (e.g. sample-subdir-name)into a branch with the exact same name 
+bash subdir_to_branch.sh update -b=sample-subdir-name -r=https://github.com/d-xa/project-scaffolds.git
+```
 
 
+
+## Call scripts remotely
+In case you want to call the scripts remotely
 ```
-bash subdir_to_branch.sh check-remote-branch -b=main -r=https://github.com/d-xa/project-scaffolds.git
-wget -O - https://raw.githubusercontent.com/d-xa/scripts/master/subdir_to_branch.sh | bash -s check-remote-branch -b=main -r=https://github.com/d-xa/project-scaffolds.git
+# scafffold.sh list
+wget -O - https://raw.githubusercontent.com/d-xa/scripts/master/scaffold.sh | bash -s list
+
+# scaffold.sh create
+wget -O - https://raw.githubusercontent.com/d-xa/scripts/master/scaffold.sh | bash -s create -s=simple-python-venv-project -n=my-new-project
 ```
+
+
+
+
