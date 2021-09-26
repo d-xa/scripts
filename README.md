@@ -23,7 +23,7 @@ bash create -s=simple-python-venv-project -n=my-new-project
 
 > subdir_to_branch.sh
 ```
-# push or update a subdirectory (e.g. sample-subdir-name)into a branch with the exact same name 
+# push or update a subdirectory (e.g. sample-subdir-name) into a branch with the exact same name 
 bash subdir_to_branch.sh update -b=sample-subdir-name -r=https://github.com/d-xa/project-scaffolds.git
 ```
 
