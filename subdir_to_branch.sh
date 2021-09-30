@@ -135,7 +135,7 @@ check_all() {
 
 #	to copy and push branch
 update_remote_branch () {
-	cp $CURRENTDIR/$BRANCHNAME/* $CURRENTDIR/_branches/$BRANCHNAME
+	cp -r $CURRENTDIR/$BRANCHNAME/* $CURRENTDIR/_branches/$BRANCHNAME
 	cd $CURRENTDIR/_branches/$BRANCHNAME \
 	&& git add . \
 	&& git commit -m "update $BRANCHNAME" \
