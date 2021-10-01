@@ -87,7 +87,7 @@ do
 		shift
 		;;
 		create)
-		OPERATION=create_python_project
+		OPERATION=create_scaffold
 		shift
 		;;
 
