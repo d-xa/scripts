@@ -139,7 +139,7 @@ update_remote_branch () {
 	cd $CURRENTDIR/_branches/$BRANCHNAME \
 	&& git add . \
 	&& git commit -m "update $BRANCHNAME" \
-	&& git push
+	&& git push --force
 	echo "${GREEN}updated remote branch $BRANCHNAME${NC}"
 	return 0;
 }
