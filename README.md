@@ -31,11 +31,14 @@ bash subdir_to_branch.sh update -b=sample-subdir-name -r=https://github.com/d-xa
 
 ## Call scripts remotely
 In case you want to call the scripts remotely
-```
-# scafffold.sh list
-wget -O - https://raw.githubusercontent.com/d-xa/scripts/master/scaffold.sh | bash -s list
 
-# scaffold.sh create
+> scafffold.sh list
+```
+wget -O - https://raw.githubusercontent.com/d-xa/scripts/master/scaffold.sh | bash -s list
+```
+
+> scaffold.sh create
+```
 wget -O - https://raw.githubusercontent.com/d-xa/scripts/master/scaffold.sh | bash -s create -s=simple-python-venv-project -n=my-new-project
 ```
 
