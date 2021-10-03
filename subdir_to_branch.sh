@@ -137,9 +137,9 @@ check_all() {
 update_remote_branch () {
 	cp -r $CURRENTDIR/$BRANCHNAME/* $CURRENTDIR/_branches/$BRANCHNAME
 	cd $CURRENTDIR/_branches/$BRANCHNAME \
+	&& git checkout $BRANCHNAME \
 	&& git add . \
 	&& git commit -m "update $BRANCHNAME" \
-	&& git pull \
 	&& git push 
 	echo "${GREEN}updated remote branch $BRANCHNAME${NC}"
 	return 0;
